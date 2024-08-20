@@ -5,6 +5,8 @@ spl_autoload_register(function($name) {
     require_once $filepath;
 });
 
+session_start();
+
 $DEBUG = true;
 
 // ルートの読み込み
@@ -43,5 +45,5 @@ if (isset($routes[$path])) {
 } else {
     // マッチするルートがない場合、404エラーを表示
     http_response_code(404);
-    echo "{$originalPath} - 404 Not Found: The requested route was not found on this server.";
+    echo "{$path} - 404 Not Found: The requested route was not found on this server.";
 }
