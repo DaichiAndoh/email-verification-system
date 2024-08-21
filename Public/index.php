@@ -17,13 +17,27 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // ルートにパスが存在するかチェック
 if (isset($routes[$path])) {
-    // ミドルウェア読み込み
-    $middlewareRegister = include('Middleware/middleware-register.php');
-    $middlewares = $middlewareRegister['global'];
-    $middlewareHandler = new \Middleware\MiddlewareHandler($middlewares);
+    // ルートの取得
+    $route = $routes[$path];
 
     try{
-        $renderer = $middlewareHandler->run($routes[$path]);
+        if (!($route instanceof Routing\Route)) throw new InvalidArgumentException("Invalid route type");
+
+        // ミドルウェア読み込み
+        $middlewareRegister = include('Middleware/middleware-register.php');
+        $middlewares = array_merge(
+            $middlewareRegister['global'],
+            array_map(
+                fn ($routeAlias) => $middlewareRegister['aliases'][$routeAlias],
+                $route->getMiddleware()
+            )
+        );
+
+        $middlewareHandler = new \Middleware\MiddlewareHandler(
+            array_map(fn($middlewareClass) => new $middlewareClass(), $middlewares)
+        );
+
+        $renderer = $middlewareHandler->run($route->getCallback());
 
         // ヘッダーを設定
         foreach ($renderer->getFields() as $name => $value) {

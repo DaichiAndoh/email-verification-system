@@ -9,35 +9,20 @@ use Response\FlashData;
 use Response\HTTPRenderer;
 use Response\Render\HTMLRenderer;
 use Response\Render\RedirectRenderer;
+use Routing\Route;
 use Types\ValueType;
 
 return [
-    '/' => function(): HTTPRenderer {
+    '/' => Route::create('/', function (): HTTPRenderer {
         return new HTMLRenderer('top', []);
-    },
-    '/mypage' => function(): HTTPRenderer {
-        if (!Authenticate::isLoggedIn()) {
-            FlashData::setFlashData('error', 'You need to be logged in.');
-            return new RedirectRenderer('/login');
-        }
-
+    }),
+    '/mypage' => Route::create('/mypage', function(): HTTPRenderer {
         return new HTMLRenderer('mypage', []);
-    },
-    '/register' => function(): HTTPRenderer {
-        if(Authenticate::isLoggedIn()){
-            FlashData::setFlashData('error', 'Cannot register as you are already logged in.');
-            return new RedirectRenderer('/');
-        }
-
+    })->setMiddleware(['auth']),
+    '/register' => Route::create('/register', function(): HTTPRenderer {
         return new HTMLRenderer('register');
-    },
-    '/form/register' => function(): HTTPRenderer {
-        // ユーザが現在ログインしている場合、登録ページにアクセスすることは不可
-        if (Authenticate::isLoggedIn()) {
-            FlashData::setFlashData('error', 'Cannot register as you are already logged in.');
-            return new RedirectRenderer('/');
-        }
-
+    })->setMiddleware(['guest']),
+    '/form/register' => Route::create('/form/register', function(): HTTPRenderer {
         try {
             // リクエストメソッドがPOSTかどうかをチェック
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception('Invalid request method!');
@@ -93,21 +78,11 @@ return [
             FlashData::setFlashData('error', 'An error occurred.');
             return new RedirectRenderer('/register');
         }
-    },
-    '/login'=>function(): HTTPRenderer{
-        if (Authenticate::isLoggedIn()) {
-            FlashData::setFlashData('error', 'You are already logged in.');
-            return new RedirectRenderer('/');
-        }
-
+    })->setMiddleware(['guest']),
+    '/login' => Route::create('/login', function(): HTTPRenderer{
         return new HTMLRenderer('login');
-    },
-    '/form/login'=>function(): HTTPRenderer{
-        if (Authenticate::isLoggedIn()) {
-            FlashData::setFlashData('error', 'You are already logged in.');
-            return new RedirectRenderer('/');
-        }
-
+    })->setMiddleware(['guest']),
+    '/form/login' => Route::create('/form/login', function(): HTTPRenderer{
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception('Invalid request method!');
 
@@ -138,15 +113,10 @@ return [
             FlashData::setFlashData('error', 'An error occurred.');
             return new RedirectRenderer('login');
         }
-    },
-    '/logout' => function(): HTTPRenderer {
-        if (!Authenticate::isLoggedIn()) {
-            FlashData::setFlashData('error', 'Already logged out.');
-            return new RedirectRenderer('/');
-        }
-
+    })->setMiddleware(['guest']),
+    '/logout' => Route::create('/logout', function(): HTTPRenderer {
         Authenticate::logoutUser();
         FlashData::setFlashData('success', 'Logged out.');
         return new RedirectRenderer('/');
-    },
+    })->setMiddleware(['auth']),
 ];
