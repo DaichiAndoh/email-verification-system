@@ -1,6 +1,7 @@
 <?php
 
 use Database\DataAccess\DAOFactory;
+use Exceptions\AuthenticationFailureException;
 use Helpers\Authenticate;
 use Helpers\ValidationHelper;
 use Models\User;
@@ -83,6 +84,51 @@ return [
 
             FlashData::setFlashData('error', 'An error occurred.');
             return new RedirectRenderer('/register');
+        }
+    },
+    '/login'=>function(): HTTPRenderer{
+        if (Authenticate::isLoggedIn()) {
+            FlashData::setFlashData('error', 'You are already logged in.');
+            return new RedirectRenderer('/');
+        }
+
+        return new HTMLRenderer('login');
+    },
+    '/form/login'=>function(): HTTPRenderer{
+        if (Authenticate::isLoggedIn()) {
+            FlashData::setFlashData('error', 'You are already logged in.');
+            return new RedirectRenderer('/');
+        }
+
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception('Invalid request method!');
+
+            $required_fields = [
+                'email' => ValueType::EMAIL,
+                'password' => ValueType::STRING,
+            ];
+
+            $validatedData = ValidationHelper::validateFields($required_fields, $_POST);
+
+            Authenticate::authenticate($validatedData['email'], $validatedData['password']);
+
+            FlashData::setFlashData('success', 'Logged in successfully.');
+            return new RedirectRenderer('/');
+        } catch (AuthenticationFailureException $e) {
+            error_log($e->getMessage());
+
+            FlashData::setFlashData('error', 'Failed to login, wrong email and/or password.');
+            return new RedirectRenderer('login');
+        } catch (\InvalidArgumentException $e) {
+            error_log($e->getMessage());
+
+            FlashData::setFlashData('error', 'Invalid Data.');
+            return new RedirectRenderer('login');
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+
+            FlashData::setFlashData('error', 'An error occurred.');
+            return new RedirectRenderer('login');
         }
     },
     '/logout' => function(): HTTPRenderer {
