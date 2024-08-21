@@ -1,25 +1,29 @@
 <?php
+set_include_path(get_include_path() . PATH_SEPARATOR . realpath(__DIR__ . '/..'));
 spl_autoload_extensions(".php");
-spl_autoload_register(function($name) {
-    $filepath = __DIR__ . "/../" . str_replace('\\', '/', $name) . ".php";
-    require_once $filepath;
-});
-
-session_start();
+spl_autoload_register();
 
 $DEBUG = true;
 
+if (preg_match('/\.(?:png|jpg|jpeg|gif|js|css|html)$/', $_SERVER["REQUEST_URI"])) {
+    return false;
+}
+
 // ルートの読み込み
-$routes = include('../Routing/routes.php');
+$routes = include('Routing/routes.php');
 
 // リクエストURIを解析してパスだけを取得
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // ルートにパスが存在するかチェック
 if (isset($routes[$path])) {
-    // コールバックを呼び出してrendererを作成
+    // ミドルウェア読み込み
+    $middlewareRegister = include('Middleware/middleware-register.php');
+    $middlewares = $middlewareRegister['global'];
+    $middlewareHandler = new \Middleware\MiddlewareHandler($middlewares);
+
     try{
-        $renderer = $routes[$path]();
+        $renderer = $middlewareHandler->run($routes[$path]);
 
         // ヘッダーを設定
         foreach ($renderer->getFields() as $name => $value) {
