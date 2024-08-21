@@ -15,6 +15,14 @@ return [
     '/' => function(): HTTPRenderer {
         return new HTMLRenderer('top', []);
     },
+    '/mypage' => function(): HTTPRenderer {
+        if (!Authenticate::isLoggedIn()) {
+            FlashData::setFlashData('error', 'You need to be logged in.');
+            return new RedirectRenderer('/login');
+        }
+
+        return new HTMLRenderer('mypage', []);
+    },
     '/register' => function(): HTTPRenderer {
         if(Authenticate::isLoggedIn()){
             FlashData::setFlashData('error', 'Cannot register as you are already logged in.');
