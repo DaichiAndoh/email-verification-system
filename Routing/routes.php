@@ -3,6 +3,7 @@
 use Database\DataAccess\DAOFactory;
 use Exceptions\AuthenticationFailureException;
 use Helpers\Authenticate;
+use Helpers\CrossSiteForgeryProtection;
 use Helpers\ValidationHelper;
 use Models\User;
 use Response\FlashData;
@@ -117,6 +118,7 @@ return [
     '/logout' => Route::create('/logout', function(): HTTPRenderer {
         Authenticate::logoutUser();
         FlashData::setFlashData('success', 'Logged out.');
+        CrossSiteForgeryProtection::removeToken();
         return new RedirectRenderer('/');
     })->setMiddleware(['auth']),
 ];

@@ -3,6 +3,7 @@
         <div class="col-md-6 offset-md-3">
             <h2 class="text-center mb-4">Register</h2>
             <form action="/form/register" method="post">
+                <input type="hidden" name="csrf_token" value="<?= Helpers\CrossSiteForgeryProtection::getToken() ?>">
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" required>

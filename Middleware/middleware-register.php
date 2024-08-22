@@ -3,6 +3,7 @@
 return [
     'global'=>[
         \Middleware\SessionsSetupMiddleware::class,
+        \Middleware\CSRFMiddleware::class,
     ],
     'aliases'=>[
         'auth'=>\Middleware\AuthenticatedMiddleware::class,

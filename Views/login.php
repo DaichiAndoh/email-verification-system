@@ -3,6 +3,7 @@
         <div class="col-md-6 offset-md-3">
             <h2 class="text-center mb-4">Login</h2>
             <form action="form/login" method="post">
+                <input type="hidden" name="csrf_token" value="<?= Helpers\CrossSiteForgeryProtection::getToken(); ?>">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" name="email" required>
