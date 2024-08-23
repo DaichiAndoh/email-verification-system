@@ -8,5 +8,6 @@ return [
     'aliases'=>[
         'auth'=>\Middleware\AuthenticatedMiddleware::class,
         'guest'=>\Middleware\GuestMiddleware::class,
+        'signature'=>\Middleware\SignatureValidationMiddleware::class,
     ]
 ];

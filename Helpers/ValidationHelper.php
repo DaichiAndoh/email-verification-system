@@ -5,6 +5,14 @@ namespace Helpers;
 use Types\ValueType;
 
 class ValidationHelper {
+    public static function integer($value, float $min = -INF, float $max = INF): int {
+        $value = filter_var($value, FILTER_VALIDATE_INT, ["min_range" => (int) $min, "max_range"=>(int) $max]);
+
+        if (!$value) throw new \InvalidArgumentException("The provided value is not a valid integer.");
+
+        return $value;
+    }
+
     public static function validateFields(array $fields, array $data): array {
         $validatedData = [];
 

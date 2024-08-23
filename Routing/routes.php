@@ -4,6 +4,7 @@ use Database\DataAccess\DAOFactory;
 use Exceptions\AuthenticationFailureException;
 use Helpers\Authenticate;
 use Helpers\CrossSiteForgeryProtection;
+use Helpers\MailSend;
 use Helpers\ValidationHelper;
 use Models\User;
 use Response\FlashData;
@@ -60,14 +61,22 @@ return [
 
             // データベースにユーザーを作成
             $success = $userDao->create($user, $validatedData['password']);
-
             if (!$success) throw new Exception('Failed to create new user!');
 
-            // ユーザーログイン
-            Authenticate::loginAsUser($user);
+            // メール認証用URLを作成
+            $verifyRoute = Route::create('/verify/email', function(){});
+            $queryParameters = [
+                'id' => $user->getId(),
+                'expiration' => time() + 3600,
+            ];
+            $signedURL = Route::create('/verify/email', function(){})->getSignedURL($queryParameters);
 
-            FlashData::setFlashData('success', 'Account successfully created.');
-            return new RedirectRenderer('/');
+            // 認証メールを送信
+            $sendResult = MailSend::sendVerificationMail($signedURL, $validatedData['email'], $validatedData['username']);
+            if (!$sendResult) throw new Exception('Failed to send virification mail!');
+
+            FlashData::setFlashData('success', 'A verification email has been sent. Please check your inbox.');
+            return new RedirectRenderer('/verify/resend');
         } catch (\InvalidArgumentException $e) {
             error_log($e->getMessage());
 
@@ -80,6 +89,26 @@ return [
             return new RedirectRenderer('/register');
         }
     })->setMiddleware(['guest']),
+    '/verify/resend' => Route::create('/verify/resend', function(): HTTPRenderer {
+        return new HTMLRenderer('verify_resend');
+    })->setMiddleware(['guest']),
+    '/verify/email' => Route::create('/verify/email', function(): HTTPRenderer {
+        $required_fields = [
+            'id' => ValueType::INT,
+            'expiration' => ValueType::INT,
+        ];
+
+        $validatedData = ValidationHelper::validateFields($required_fields, $_GET);
+
+        $userDao = DAOFactory::getUserDAO();
+        $user = $userDao->getById($validatedData['id']);
+        $userDao->updateEmailConfirmedAt($user);
+
+        Authenticate::loginAsUser($user);
+
+        FlashData::setFlashData('success', 'Account successfully created.');
+        return new RedirectRenderer('/');
+    })->setMiddleware(['guest', 'signature']),
     '/login' => Route::create('/login', function(): HTTPRenderer{
         return new HTMLRenderer('login');
     })->setMiddleware(['guest']),
