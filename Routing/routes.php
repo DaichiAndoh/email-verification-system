@@ -131,17 +131,17 @@ return [
             error_log($e->getMessage());
 
             FlashData::setFlashData('error', 'Failed to login, wrong email and/or password.');
-            return new RedirectRenderer('login');
+            return new RedirectRenderer('/login');
         } catch (\InvalidArgumentException $e) {
             error_log($e->getMessage());
 
             FlashData::setFlashData('error', 'Invalid Data.');
-            return new RedirectRenderer('login');
+            return new RedirectRenderer('/login');
         } catch (Exception $e) {
             error_log($e->getMessage());
 
             FlashData::setFlashData('error', 'An error occurred.');
-            return new RedirectRenderer('login');
+            return new RedirectRenderer('/login');
         }
     })->setMiddleware(['guest']),
     '/logout' => Route::create('/logout', function(): HTTPRenderer {
