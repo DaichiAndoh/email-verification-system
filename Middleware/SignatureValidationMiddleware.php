@@ -18,7 +18,9 @@ class SignatureValidationMiddleware implements Middleware {
         $route = Route::create($pathWithoutQuery, function(){});
 
         // URLに有効な署名があるかチェック
-        if ($route->isSignedURLValid($_SERVER['HTTP_HOST'] . $currentPath)) {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        if ($route->isSignedURLValid($protocol . $host . $currentPath)) {
             // 有効期限があるかどうかを確認し、有効期限がある場合は有効期限が切れていないことを確認
             if(isset($_GET['expiration']) && ValidationHelper::integer($_GET['expiration']) < time()){
                 FlashData::setFlashData('error', "The URL has expired.");

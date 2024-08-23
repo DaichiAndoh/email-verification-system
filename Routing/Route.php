@@ -44,8 +44,9 @@ class Route {
     private function getBaseURL(): string {
         if(!isset($_SERVER)) return $this->getPath();
 
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $host = $_SERVER['HTTP_HOST'];
-        return sprintf($host . $this->getPath()) ;
+        return sprintf($protocol . $host . $this->getPath()) ;
     }
 
     private function getSecretKey(): string {
