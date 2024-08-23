@@ -1,6 +1,4 @@
-Dear [User's Name],
-
-Thank you for signing up with [Your Company Name].
+Thank you for signing up with Email Verification System.
 
 To complete your registration and verify your email address, please click the link below within the next hour:
 
@@ -10,5 +8,4 @@ This link will expire in 1 hour for your security.
 
 If you did not create an account, you can safely ignore this email.
 
-Thank you,
-The [Your Company Name] Team
+Thank you.

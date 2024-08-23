@@ -23,6 +23,8 @@ class MailSend {
             $mail->setFrom(Settings::env('MAIL_FROM_ADDRESS'), Settings::env('MAIL_FROM_NAME')); // 送信者を設定
             $mail->addAddress($toAddress, $toName); // 受信者を追加
 
+            $mail->Subject = 'Verify Your Email Address';
+
             $mail->isHTML(); // メール形式をHTMLに設定
             ob_start();
             extract(['signedURL' => $signedURL]);
