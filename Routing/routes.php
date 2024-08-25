@@ -16,13 +16,13 @@ use Types\ValueType;
 
 return [
     '/' => Route::create('/', function (): HTTPRenderer {
-        return new HTMLRenderer('top', []);
+        return new HTMLRenderer('page/top', []);
     }),
     '/mypage' => Route::create('/mypage', function(): HTTPRenderer {
-        return new HTMLRenderer('mypage', []);
+        return new HTMLRenderer('page/mypage', []);
     })->setMiddleware(['login', 'auth']),
     '/register' => Route::create('/register', function(): HTTPRenderer {
-        return new HTMLRenderer('register');
+        return new HTMLRenderer('page/register');
     })->setMiddleware(['guest']),
     '/form/register' => Route::create('/form/register', function(): HTTPRenderer {
         try {
@@ -88,7 +88,7 @@ return [
         }
     })->setMiddleware(['guest']),
     '/verify/resend' => Route::create('/verify/resend', function(): HTTPRenderer {
-        return new HTMLRenderer('verify_resend');
+        return new HTMLRenderer('page/verify_resend');
     })->setMiddleware(['login', 'notVerified']),
     '/verify/email' => Route::create('/verify/email', function(): HTTPRenderer {
         try {
@@ -113,7 +113,7 @@ return [
         }
     })->setMiddleware(['login', 'notVerified', 'signature']),
     '/login' => Route::create('/login', function(): HTTPRenderer{
-        return new HTMLRenderer('login');
+        return new HTMLRenderer('page/login');
     })->setMiddleware(['guest']),
     '/form/login' => Route::create('/form/login', function(): HTTPRenderer{
         try {
