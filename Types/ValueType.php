@@ -1,8 +1,7 @@
 <?php
 namespace Types;
 
-enum ValueType: string
-{
+enum ValueType: string {
     case STRING = 'string';
     case INT = 'int';
     case FLOAT = 'float';

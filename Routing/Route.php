@@ -42,7 +42,7 @@ class Route {
     }
 
     private function getBaseURL(): string {
-        if(!isset($_SERVER)) return $this->getPath();
+        if (!isset($_SERVER)) return $this->getPath();
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $host = $_SERVER['HTTP_HOST'];
@@ -69,14 +69,14 @@ class Route {
     public function isSignedURLValid(string $url, bool $absolute = true): bool {
         // URLデータを含む連想配列を返すparse_url組み込み関数を使用して、URLから署名を抽出
         $parsedUrl = parse_url($url);
-        if(!isset($parsedUrl['query'])) return false;
+        if (!isset($parsedUrl['query'])) return false;
 
         $queryParams = [];
         
         // $parsedUrl['query']をparse_strでパース
         parse_str($parsedUrl['query'], $queryParams);
 
-        if(!isset($queryParams['signature'])) return false;
+        if (!isset($queryParams['signature'])) return false;
 
         $signature = $queryParams['signature'];
 
