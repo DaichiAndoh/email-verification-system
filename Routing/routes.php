@@ -90,6 +90,36 @@ return [
     '/verify/resend' => Route::create('/verify/resend', function(): HTTPRenderer {
         return new HTMLRenderer('page/verify_resend');
     })->setMiddleware(['login', 'notVerified']),
+    '/form/verify/resend' => Route::create('/form/verify/resend', function(): HTTPRenderer {
+        try {
+            // リクエストメソッドがPOSTかどうかをチェック
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception('Invalid request method!');
+
+            // ログイン中のユーザーを取得
+            $user = Authenticate::getAuthenticatedUser();
+            if ($user === null) throw new Exception('Cannot find logged in user.');
+
+            // メール認証用URLを作成
+            $verifyRoute = Route::create('/verify/email', function(){});
+            $queryParameters = [
+                'id' => $user->getId(),
+                'expiration' => time() + 3600,
+            ];
+            $signedURL = Route::create('/verify/email', function(){})->getSignedURL($queryParameters);
+
+            // 認証メールを再送信
+            $sendResult = MailSend::sendVerificationMail($signedURL, $user->getEmail(), $user->getUsername());
+            if (!$sendResult) throw new Exception('Failed to resend virification mail!');
+
+            FlashData::setFlashData('success', 'A verification email has been resent. Please check your inbox.');
+            return new RedirectRenderer('/verify/resend');
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+
+            FlashData::setFlashData('error', 'An error occurred.');
+            return new RedirectRenderer('/register');
+        }
+    })->setMiddleware(['login', 'notVerified']),
     '/verify/email' => Route::create('/verify/email', function(): HTTPRenderer {
         try {
             $required_fields = [
@@ -103,7 +133,7 @@ return [
             $result = $userDao->updateEmailConfirmedAt($user);
             if (!$result) throw new Exception("Failed to update user's email_confirmed_at.");
 
-            FlashData::setFlashData('success', 'Account successfully created.');
+            FlashData::setFlashData('success', 'Account successfully verified.');
             return new RedirectRenderer('/');
         } catch (Exception $e) {
             error_log($e->getMessage());
