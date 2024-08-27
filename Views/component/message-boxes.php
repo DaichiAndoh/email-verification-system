@@ -3,7 +3,7 @@ $success = \Response\FlashData::getFlashData('success');
 $error = \Response\FlashData::getFlashData('error');
 ?>
 
-<div class="container mt-5 mb-5">
+<div>
     <?php if ($success): ?>
         <div class="alert alert-success">
             <?php echo htmlspecialchars($success); ?>

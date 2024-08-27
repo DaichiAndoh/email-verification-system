@@ -14,9 +14,3 @@
     <title>Email-Verification-System</title>
 </head>
 <body>
-    <!-- nav -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">Email-Verification-System</a>
-        </div>
-    </nav>

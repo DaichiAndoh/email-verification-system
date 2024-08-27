@@ -1,3 +1,3 @@
-<div class="container py-3" style="margin-top: 56px;">
+<div class="container mt-3">
     <h1>My Page</h1>
 </div>
